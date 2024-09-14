@@ -2,7 +2,7 @@ spring:
   application:
     name: api-gateway
   config:
-    import: optional:configserver:http://ac9d448751edc4aee94e5b252558f421-1054032099.us-east-1.elb.amazonaws.com/discovery-server/config-server/
+    import: optional:configserver:http://ac9d448751edc4aee94e5b252558f421-1054032099.us-east-1.elb.amazonaws.com/config-server/
     fail-fast: false
 
 eureka:
@@ -25,4 +25,4 @@ spring:
   config:
     activate:
       on-profile: docker
-    import: configserver:http://ac9d448751edc4aee94e5b252558f421-1054032099.us-east-1.elb.amazonaws.com/discovery-server/config-server/
+    import: configserver:http://ac9d448751edc4aee94e5b252558f421-1054032099.us-east-1.elb.amazonaws.com/config-server/
