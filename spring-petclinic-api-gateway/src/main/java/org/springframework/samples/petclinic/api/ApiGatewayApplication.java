@@ -17,6 +17,8 @@ package org.springframework.samples.petclinic.api;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,11 +44,14 @@ import java.time.Duration;
 /**
  * @author Maciej Szarlinski
  */
+@Slf4j
 @EnableDiscoveryClient
 @SpringBootApplication
 public class ApiGatewayApplication {
 
     public static void main(String[] args) {
+        log.info(System.getenv("CONFIG_SERVER_URL"));
+        log.info(System.getenv("DISCOVERY_SERVER_URL"));
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 

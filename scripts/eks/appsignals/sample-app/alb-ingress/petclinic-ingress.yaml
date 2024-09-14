@@ -18,21 +18,63 @@ spec:
                 name: pet-clinic-frontend-java
                 port:
                   number: 8080
-          - path: /
+          - path: /customers-service-java
             pathType: Prefix
             backend:
               service:
                 name: customers-service-java
                 port:
                   number: 8081
-          - path: /
+          - path: /vets-service-java
             pathType: Prefix
             backend:
               service:
                 name: vets-service-java
                 port:
                   number: 8083
-          - path: /
+          - path: /admin-server-java
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-server-java
+                port:
+                  number: 9090
+          - path: /billing-service-python
+            pathType: Prefix
+            backend:
+              service:
+                name: billing-service-python
+                port:
+                  number: 8800
+          - path: /config-server
+            pathType: Prefix
+            backend:
+              service:
+                name: config-server
+                port:
+                  number: 8888
+          - path: /discovery-server
+            pathType: Prefix
+            backend:
+              service:
+                name: discovery-server
+                port:
+                  number: 8761
+          - path: /insurance-service-python
+            pathType: Prefix
+            backend:
+              service:
+                name: insurance-service-python
+                port:
+                  number: 8000
+          - path: /nutrition-service-nodejs
+            pathType: Prefix
+            backend:
+              service:
+                name: nutrition-service-nodejs
+                port:
+                  number: 3000
+          - path: /visits-service-java
             pathType: Prefix
             backend:
               service:

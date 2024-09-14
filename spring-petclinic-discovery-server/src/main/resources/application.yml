@@ -2,7 +2,7 @@ spring:
     application:
         name: discovery-server
     config:
-        import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+        import: optional:configserver:http://ac9d448751edc4aee94e5b252558f421-1054032099.us-east-1.elb.amazonaws.com/config-server/
 eureka:
     server:
         enableSelfPreservation: false
@@ -19,4 +19,4 @@ spring:
     config:
         activate:
             on-profile: docker
-        import: configserver:http://config-server:8888
+        import: configserver:http://ac9d448751edc4aee94e5b252558f421-1054032099.us-east-1.elb.amazonaws.com/config-server
