@@ -7,8 +7,9 @@ cd "$(dirname "$0")"
 # Set variables with provided arguments or default values
 CLUSTER_NAME=$1
 REGION=$2
-NAMESPACE=${3:-default}
-OPERATION=${4:-"apply"}
+ENDPOINT=$3
+NAMESPACE=${4:-default}
+OPERATION=${5:-"apply"}
 
 # Check if the current context points to the new cluster in the correct region
 kub_config=$(kubectl config current-context)
@@ -24,8 +25,10 @@ ACCOUNT=$(aws sts get-caller-identity | jq -r '.Account')
 
 if [[ $OPERATION == "apply" ]]; then
     # Save the endpoint URL to a variable
-    endpoint=$(kubectl get svc -n ingress-nginx | grep "ingress-nginx" | awk '{print $4}')
-
+    # endpoint=$(kubectl get svc -n ingress-nginx | grep "ingress-nginx" | awk '{print $4}')
+    endpoint="${ENDPOINT}"
+    echo $endpoint
+    
     # Start the traffic generator
     sed -e "s/111122223333.dkr.ecr.us-west-2/$ACCOUNT.dkr.ecr.$REGION/g" -e "s/SAMPLE_APP_END_POINT/${endpoint}/g"  ./sample-app/traffic-generator/traffic-generator.yaml | kubectl apply --namespace=$NAMESPACE -f -
 

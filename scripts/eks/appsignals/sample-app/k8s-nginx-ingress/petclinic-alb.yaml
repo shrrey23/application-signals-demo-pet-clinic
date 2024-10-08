@@ -1,0 +1,68 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: petclinic-ingress-alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: config-server
+            port:
+              number: 8888
+      - path: /eureka
+        pathType: Prefix
+        backend:
+          service:
+            name: discovery-server
+            port:
+              number: 8761
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vets-service-java
+            port:
+              number: 8083
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: visits-service-java
+            port:
+              number: 8082
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: billing-service-python
+            port:
+              number: 8800
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: insurance-service-python
+            port:
+              number: 8000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: customers-service-java
+            port:
+              number: 8081
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nutrition-service-nodejs
+            port:
+              number: 3000

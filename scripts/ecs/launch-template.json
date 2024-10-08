@@ -1,0 +1,16 @@
+{
+  "ImageId": "$IMAGE_ID",
+  "InstanceType": "t3.medium",
+  "KeyName": "$KEY_NAME",
+  "IamInstanceProfile": {
+    "Arn": "arn:aws:iam::$ACCOUNT:instance-profile/$IAM_ROLE_INSTANCE_NAME"
+  },
+  "UserData": "$USER_DATA",
+  "NetworkInterfaces": [
+    {
+      "AssociatePublicIpAddress": true,
+      "DeviceIndex": 0,
+      "Groups": ["$SECURITY_GROUP"]
+    }
+  ]
+}

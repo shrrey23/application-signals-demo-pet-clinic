@@ -69,7 +69,7 @@ if [[ $OPERATION == "apply" ]]; then
     endpoint=$(kubectl get svc -n ingress-nginx | grep "ingress-nginx" | awk '{print $4}')
 
     # Print the endpoint
-    echo "Visit the following URL to see the sample app running: $endpoint"
+    # echo "Visit the following URL to see the sample app running: $endpoint"
 
 else
     kubectl delete -f ./sample-app/k8s-nginx-ingress/

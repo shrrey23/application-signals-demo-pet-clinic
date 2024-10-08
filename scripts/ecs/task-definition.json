@@ -1,0 +1,173 @@
+{
+	"family": "pet-clinic-frontend-java-task",
+	"containerDefinitions": [
+		{
+			"name": "api-gateway-java",
+			"image": "<ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/springcommunity/spring-petclinic-api-gateway:latest",
+			"cpu": 0,
+			"portMappings": [
+				{
+					"name": "api-gateway-java-8080-tcp",
+					"containerPort": 8080,
+					"hostPort": 8080,
+					"protocol": "tcp"
+				}
+			],
+			"essential": true,
+			"restartPolicy": {
+				"enabled": true
+			},
+			"environment": [
+				{
+					"name": "CONFIG_SERVER_URL",
+					"value": "<CONFIG_URL>"
+				},
+				{
+					"name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+					"value": "http/protobuf"
+				},
+				{
+					"name": "OTEL_AWS_APPLICATION_SIGNALS_ENABLED",
+					"value": "true"
+				},
+				{
+					"name": "OTEL_AWS_APPLICATION_SIGNALS_EXPORTER_ENDPOINT",
+					"value": "http://localhost:4316/v1/metrics"
+				},
+				{
+					"name": "OTEL_RESOURCE_ATTRIBUTES",
+					"value": "service.name=pet-clinic-front-end"
+				},
+				{
+					"name": "OTEL_METRICS_EXPORTER",
+					"value": "none"
+				},
+				{
+					"name": "JAVA_TOOL_OPTIONS",
+					"value": "-javaagent:/opentelemetry-auto-instrumentation/javaagent.jar"
+				},
+				{
+					"name": "DISCOVERY_SERVER_URL",
+					"value": "<CONFIG_URL>/eureka"
+				},
+				{
+					"name": "OTEL_LOGS_EXPORTER",
+					"value": "none"
+				},
+				{
+					"name": "OTEL_TRACES_SAMPLER",
+					"value": "xray"
+				},
+				{
+					"name": "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+					"value": "http://localhost:4316/v1/traces"
+				},
+				{
+					"name": "OTEL_PROPAGATORS",
+					"value": "tracecontext,baggage,b3,xray"
+				}
+			],
+			"mountPoints": [
+				{
+					"sourceVolume": "opentelemetry-auto-instrumentation",
+					"containerPath": "/opentelemetry-auto-instrumentation",
+					"readOnly": false
+				}
+			],
+			"volumesFrom": [],
+			"dependsOn": [
+				{
+					"containerName": "init",
+					"condition": "COMPLETE"
+				}
+			],
+			"startTimeout": 250,
+			"logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+					"awslogs-create-group": "true",
+					"awslogs-group": "/ecs/pet-clinic-frontend-java-task",
+					"awslogs-region": "us-east-1"
+				}
+			},
+			"healthCheck": {
+				"command": [
+					"CMD-SHELL",
+					"curl -f http://localhost:8080/ || exit 1"
+				],
+				"interval": 30,
+                "timeout": 5,
+                "retries": 10,
+                "startPeriod": 10
+			},
+			"systemControls": []
+		},
+		{
+			"name": "ecs-cwagent",
+			"image": "public.ecr.aws/cloudwatch-agent/cloudwatch-agent:latest",
+			"cpu": 0,
+			"portMappings": [],
+			"essential": false,
+			"environment": [],
+			"mountPoints": [],
+			"volumesFrom": [],
+			"secrets": [
+				{
+					"name": "CW_CONFIG_CONTENT",
+					"valueFrom": "ecs-cwagent"
+				}
+			],
+			"logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+					"awslogs-create-group": "true",
+					"awslogs-group": "/ecs/ecs-cwagent",
+					"awslogs-region": "us-east-1"
+				}
+			},
+			"systemControls": []
+		},
+		{
+			"name": "init",
+			"image": "public.ecr.aws/aws-observability/adot-autoinstrumentation-java:v1.32.3",
+			"cpu": 0,
+			"portMappings": [],
+			"essential": false,
+			"command": [
+				"cp",
+				"/javaagent.jar",
+				"/opentelemetry-auto-instrumentation/javaagent.jar"
+			],
+			"environment": [],
+			"mountPoints": [
+				{
+					"sourceVolume": "opentelemetry-auto-instrumentation",
+					"containerPath": "/opentelemetry-auto-instrumentation",
+					"readOnly": false
+				}
+			],
+			"volumesFrom": [],
+			"systemControls": []
+		}
+	],
+	"taskRoleArn": "arn:aws:iam::<ACCOUNT>:role/<ROLE-ARN>",
+	"executionRoleArn": "arn:aws:iam::<ACCOUNT>:role/<ROLE-ARN>",
+	"networkMode": "host",
+	"volumes": [
+		{
+			"name": "opentelemetry-auto-instrumentation",
+			"host": {
+				"sourcePath": "/opentelemetry-auto-instrumentation"
+			}
+		}
+	],
+	"requiresCompatibilities": [
+		"EC2"
+	],
+	"cpu": "256",
+	"memory": "512",
+	"runtimePlatform": {
+		"cpuArchitecture": "X86_64",
+		"operatingSystemFamily": "LINUX"
+	}
+}

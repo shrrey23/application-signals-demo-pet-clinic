@@ -8,6 +8,7 @@ cd "$(dirname "$0")"
 CLUSTER_NAME=$1
 REGION=$2
 NAMESPACE=${3:-default}
+ACCOUNT=$(aws sts get-caller-identity | jq -r '.Account')
 
 # Get the kubectl config in JSON format
 kubectl_config=$(kubectl config view --output=json)
@@ -38,37 +39,40 @@ check_if_step_failed() {
   fi
 }
 
-echo "Deleting SLO"
+# echo "Deleting SLO"
 ../cleanup-slo.sh $REGION
-check_if_step_failed_and_exit "There was an error deleting the SLOs. Please make sure they are deleted properly before proceeding with the following steps"
+# check_if_step_failed_and_exit "There was an error deleting the SLOs. Please make sure they are deleted properly before proceeding with the following steps"
 
 echo "Deleting canaries"
 ../create-canaries.sh $REGION delete
-check_if_step_failed_and_exit "There was an error deleting the canaries. Please make sure they are deleted properly before proceeding with the following steps"
+# check_if_step_failed_and_exit "There was an error deleting the canaries. Please make sure they are deleted properly before proceeding with the following steps"
 
 ../deploy-sample-app.sh $CLUSTER_NAME $REGION $NAMESPACE delete
-check_if_step_failed_and_exit "There was an error deleting the sample apps. Please make sure they are deleted properly before proceeding with the following steps"
+# check_if_step_failed_and_exit "There was an error deleting the sample apps. Please make sure they are deleted properly before proceeding with the following steps"
 
 ../deploy-traffic-generator.sh $CLUSTER_NAME $REGION $NAMESPACE delete
-check_if_step_failed_and_exit "There was an error deleting the traffic generator. Please make sure they are deleted properly before proceeding with the following steps"
+# check_if_step_failed_and_exit "There was an error deleting the traffic generator. Please make sure they are deleted properly before proceeding with the following steps"
 
 eksctl delete cluster --name $CLUSTER_NAME --region $REGION
-check_if_step_failed "There was an error deleting the cluster $CLUSTER_NAME."
+# check_if_step_failed "There was an error deleting the cluster $CLUSTER_NAME."
 
 aws logs delete-log-group --log-group-name '/aws/application-signals/data' --region $REGION
-check_if_step_failed "There was an error deleting the log group /aws/application-signals/data."
+# check_if_step_failed "There was an error deleting the log group /aws/application-signals/data."
 
-# remove the sqs queue 
+# # remove the sqs queue 
 aws sqs delete-queue --region $REGION --queue-url $(aws sqs get-queue-url --region $REGION --queue-name apm_test --query 'QueueUrl' --output text)
-check_if_step_failed "There was an error deleting the sqs."
+# check_if_step_failed "There was an error deleting the sqs."
 
-# delete the kinesis stream
+# # delete the kinesis stream
 aws kinesis delete-stream --stream-name apm_test --region $REGION
-check_if_step_failed "There was an error deleting the kinesis stream."
+# check_if_step_failed "There was an error deleting the kinesis stream."
 
-# remove DDB table
+# # remove DDB table
 aws dynamodb delete-table --table-name apm_test --region $REGION
-check_if_step_failed "There was an error deleting the dynamodb table apm_test."
+# check_if_step_failed "There was an error deleting the dynamodb table apm_test."
 
 aws dynamodb delete-table --table-name BillingInfo --region $REGION
-check_if_step_failed "There was an error deleting the dynamodb table BillingInfo."
+# check_if_step_failed "There was an error deleting the dynamodb table BillingInfo."
+
+cd ../../../ecs
+./destroy-ecs-resource.sh $CLUSTER_NAME $REGION

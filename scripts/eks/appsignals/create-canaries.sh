@@ -126,12 +126,13 @@ create_canary() {
       exit 1
     fi
 
-    if [ -n "$NGINX_ENDPOINT" ]; then
-      ENDPOINT="$NGINX_ENDPOINT"
-    else
-      # If NGINX_ENDPOINT is not provided, get it from kubectl
-      ENDPOINT="http://$(kubectl get svc -n ingress-nginx | grep 'ingress-nginx' | awk '{print $4}')"
-    fi
+    # if [ -n "$NGINX_ENDPOINT" ]; then
+    #   ENDPOINT="$NGINX_ENDPOINT"
+    # else
+    #   # If NGINX_ENDPOINT is not provided, get it from kubectl
+    #   ENDPOINT="http://$(kubectl get svc -n ingress-nginx | grep 'ingress-nginx' | awk '{print $4}')"
+    # fi
+    ENDPOINT="$NGINX_ENDPOINT"
     if [ -z "$ENDPOINT" ]; then
       echo "Fail to get a valid endpoint. Endpoint is empty. Exit the script"
       exit 6

@@ -95,7 +95,7 @@ const bedrockRequestTask = cron.schedule('* * * * *', () => {
     }
 }, { scheduled: false });
 
-bedrockRequestTask.start();
+// bedrockRequestTask.start();
 
 
 const createOwnerLowTrafficTask = cron.schedule('* * * * *', () => {
