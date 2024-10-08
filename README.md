@@ -21,7 +21,7 @@ In the following, we will focus on how customers can set up the current sample a
 The following diagram represents the architecture of the pet clinic app. Front-end service is exposed to public endpoint using NLB and communicates with ConfigService and DiscoveryServer through ALB endpoint exposed using nginx ingress in EKS cluster. 
 
 
-![](resources/architecture.png)
+![](resources/DemoPetClinic.png)
 
 
 # EKS + ECS demo setup
