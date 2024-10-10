@@ -20,6 +20,8 @@ CAPACITY_PROVIDER_NAME="pet-clinic-ecs-capacity-provider"
 echo "Deleting ECS Service..."
 aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --desired-count 0 --no-cli-pager --no-cli-auto-prompt < /dev/null
 
+aws ecs update-cluster --cluster $CLUSTER_NAME --capacity-providers []
+
 # Step 2: Wait for the service tasks to stop
 echo "Waiting for the service tasks to stop..."
 while true; do
@@ -42,18 +44,6 @@ INSTANCE_ARNs=$(aws ecs list-container-instances --cluster $CLUSTER_NAME --query
 for INSTANCE_ARN in $INSTANCE_ARNs; do
     aws ecs update-container-instances-state --cluster $CLUSTER_NAME --container-instances $INSTANCE_ARN --status DRAINING --no-cli-pager
 done
-
-# # Step 5: Wait for container instances to drain
-# echo "Waiting for container instances to drain..."
-# while true; do
-#     ACTIVE_INSTANCES=$(aws ecs describe-container-instances --cluster $CLUSTER_NAME --container-instances $INSTANCE_ARNs --query "containerInstances[?status=='DRAINING'].ec2InstanceId" --output text | wc -w)
-#     if [ "$ACTIVE_INSTANCES" -eq 0 ]; then
-#         echo "All container instances have drained."
-#         break
-#     fi
-#     echo "Waiting... Current draining instances: $ACTIVE_INSTANCES"
-#     sleep 5  # Wait for 5 seconds before checking again
-# done
 
 # Step 6: Delete capacity provider if needed
 aws ecs delete-capacity-provider --capacity-provider $CAPACITY_PROVIDER_NAME --no-cli-auto-prompt --no-cli-pager < /dev/null
@@ -85,20 +75,17 @@ else
         aws elbv2 deregister-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=$TARGET
         echo "Deregistered target: $TARGET"
     done
+    sleep 120
 fi
-
-sleep 120
-
-# Delete Target Group
-echo "Deleting Target Group..."
-aws elbv2 delete-target-group --target-group-arn $TARGET_GROUP_ARN --no-cli-pager --no-cli-auto-prompt < /dev/null
 
 # Delete Network Load Balancer (NLB)
 echo "Deleting NLB..."
 NLB_ARN=$(aws elbv2 describe-load-balancers --names $NLB_NAME --query "LoadBalancers[0].LoadBalancerArn" --output text)
 aws elbv2 delete-load-balancer --load-balancer-arn $NLB_ARN
 
-# sleep 120
+# Delete Target Group
+echo "Deleting Target Group..."
+aws elbv2 delete-target-group --target-group-arn $TARGET_GROUP_ARN --no-cli-pager --no-cli-auto-prompt < /dev/null
 
 # Delete key pair
 echo "Deleting Key Pair..."

@@ -181,7 +181,7 @@ append_ebs_metric() {
                     },
                     "metrics": [
                         [ "AWS/EBS", "VolumeWriteBytes", "VolumeId", $volume, 
-                        { "label": "[avg: ${AVG}] ($volume)", "region": "'"$REGION"'" } ]
+                        { "label": "[avg: ${AVG}]  \($volume)", "region": "'"$REGION"'" } ]
                     ],
                     "title": "\($type) Write throughput(Bytes/s) : \($volume)",
                     "period": 300,

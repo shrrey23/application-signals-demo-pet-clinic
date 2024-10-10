@@ -47,7 +47,7 @@ check_if_step_failed_and_exit "There was an error enabling aws-ebs-csi-driver wi
 ../deploy-sample-app.sh $CLUSTER_NAME $REGION $NAMESPACE
 check_if_step_failed_and_exit "There was an error deploying the sample app, exiting"
 
-Check if the current context points to the new cluster in the correct region
+# Check if the current context points to the new cluster in the correct region
 kub_config=$(kubectl config current-context)
 if [[ $kub_config != *"$CLUSTER_NAME"* ]] || [[ $kub_config != *"$REGION"* ]]; then
     echo "Your current cluster context is not set to $CLUSTER_NAME in $REGION. To get the endpoint of the sample app update your context then run
@@ -64,10 +64,6 @@ cd ../../../ecs
 
 nlb_endpoint=$(aws elbv2 describe-load-balancers --names pet-clinic-nlb --query 'LoadBalancers[0].DNSName' --output text)
 
-echo "==============================="
-echo "Visit the application on the endpoint: $nlb_endpoint"
-echo "==============================="
-
 # deploy traffic generator
 cd ../eks/appsignals/one-step
 ../deploy-traffic-generator.sh $CLUSTER_NAME $REGION $nlb_endpoint $NAMESPACE
@@ -76,3 +72,7 @@ check_if_step_failed_and_exit "There was an error deploying the traffic generato
 # create canaries
 ../create-canaries.sh $REGION "create" $nlb_endpoint
 check_if_step_failed_and_exit "There was an error creating the canaries, exiting"
+
+echo "==============================="
+echo "Visit the application on the endpoint: $nlb_endpoint"
+echo "==============================="

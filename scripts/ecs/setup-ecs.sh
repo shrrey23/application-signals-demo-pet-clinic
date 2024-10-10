@@ -37,7 +37,10 @@ VPC_ID=$(aws eks describe-cluster --name "$CLUSTER_NAME" \
 echo "EKS Cluster VPC ID: $VPC_ID"
 
 # Fetch the subnets associated with the EKS cluster
-SUBNETS=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" --query "join(',', sort_by(Subnets, &AvailabilityZone)[0:1].SubnetId)" --output text)
+SUBNETS=$(aws ec2 describe-route-tables --filters "Name=vpc-id,Values=$VPC_ID" \
+  --query 'RouteTables[?Routes[?GatewayId!=null && starts_with(GatewayId, `igw`)]].Associations[0].SubnetId' \
+  --output text)
+
 echo "Subnets associated with EKS Cluster: $SUBNETS"
 
 # List EKS node groups
@@ -243,7 +246,7 @@ aws ecs create-cluster \
   --cluster-name $CLUSTER_NAME \
   --capacity-providers $CAPACITY_PROVIDER_NAME \
   --default-capacity-provider-strategy "capacityProvider=$CAPACITY_PROVIDER_NAME,weight=1,base=1" \
-  --no-cli-pager --no-cli-auto-prompt < /dev/null
+  --no-cli-pager > /dev/null 2>&1
 
 # Wait for the cluster to be ready
 while true; do
@@ -315,8 +318,6 @@ SECURITY_GROUP_IDS=$(aws ec2 describe-security-groups --filters Name=vpc-id,Valu
 echo "Attaching security groups to NLB: $NLB_ARN..."
 aws elbv2 set-security-groups --load-balancer-arn $NLB_ARN --security-groups $SECURITY_GROUP_IDS --no-cli-pager --no-cli-auto-prompt < /dev/null
 
-echo $PWD
-ls
 ./refresh_dashboard.sh $CLUSTER_NAME $REGION
 
 echo "ECS Cluster, ASG, and Service setup complete!"
