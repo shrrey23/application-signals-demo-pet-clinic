@@ -31,7 +31,6 @@ The following diagram represents the architecture of the pet clinic app. Front-e
 1. Build container images for each micro-service application
 
 ``` shell
-
 ./mvnw clean install -P buildDocker
 ```
 
@@ -46,7 +45,7 @@ export REGION='us-east-1'
 3. Create an EKS cluster, ECS cluster, enable Application Signals, and deploy the sample application to your EKS and ECS cluster. Replace `new-cluster-name` with the name that you want to use for the new cluster. Replace `region-name` with the same region in previous section "**Build the sample application images and push to ECR**".
 
 ``` shell
-cd scripts/eks/appsignals/one-step && ./setup.sh new-cluster-name region-name
+cd scripts/eks/appsignals/one-step && ./setup.sh <cluster_name> <region_name>
 ```
 
 ### How to teardown the application?
@@ -54,11 +53,22 @@ cd scripts/eks/appsignals/one-step && ./setup.sh new-cluster-name region-name
 Clean up all the resources which were created in the previous step. Replace `new-cluster-name` and `region-name` with the same values that you use in previous step.
 
 ``` shell
-cd scripts/eks/appsignals/one-step && ./cleanup.sh new-cluster-name region-name
+cd scripts/eks/appsignals/one-step && ./cleanup.sh <cluster_name> <region_name>
 ```
 
 If you want to setup the application again, you don't have to push docker images to ECR again, just run the setup command to setup ECS and EKS clusters : 
+
+```shell
+cd scripts/eks/appsignals/one-step && ./setup.sh <cluster_name> <region_name>
 ```
-cd scripts/eks/appsignals/one-step && ./setup.sh new-cluster-name region-name
+
+### CloudWatch Dashboard 
+
+Once the application setup step also creates a dashboard with latency metrics for ECS and EKS services, EC2 and EKS instances CPU utilization, EBS volume throught put, CloudWatch logs widget and alarms. 
+
+If any of the EBS volume rotates and dashboard becomes stale, you can spin up the new dashboard using the command : 
+
+```shell
+cd scripts/ecs && ./refresh_dashboard.sh <cluster_name> <region_name>
 ```
 
